@@ -1,0 +1,42 @@
+[
+	{
+		"name": "Query1",
+		"pars": [],
+		"vars": [],
+		"body": [
+			"SELECT email FROM Lecturer WHERE Lecturer_id = 'Huong'"
+		]
+	},
+	{
+		"name": "Query2",
+		"pars": [],
+		"vars": [],
+		"body": [
+			"SELECT DISTINCT email FROM Lecturer JOIN (SELECT * FROM Enrollment WHERE students = 'Thanh' AND lecturers = 'Huong' ) AS TEMP ON TEMP.lecturers = Lecturer_id"
+		]
+	},
+	{
+		"name": "Query3",
+		"pars": [],
+		"vars": [],
+		"body": [
+			"SELECT DISTINCT email FROM Lecturer JOIN (SELECT e1.lecturers as lecturers FROM (SELECT * FROM Enrollment WHERE lecturers = 'Huong' ) AS e1 JOIN (SELECT * FROM Enrollment WHERE lecturers = 'Manuel' ) AS e2 ON e1.students = e2.students ) AS TEMP ON TEMP.lecturers = Lecturer_id"
+		]
+	},
+	{
+		"name": "Query4",
+		"pars": [],
+		"vars": [],
+		"body": [
+			"SELECT Student_id FROM Student WHERE age > 18"
+		]
+	},
+	{
+		"name": "Query5",
+		"pars": [],
+		"vars": [],
+		"body": [
+			"SELECT students FROM Enrollment"
+		]
+	}
+]
