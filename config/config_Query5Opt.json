@@ -1,7 +1,7 @@
 {
     "Mode": "AUTHQUERY",
     "Runs": 2,
-    "Tools": ["org.vgu.sqlsi"],
+    "Tools": ["SQLSI"],
     "Scenario": ["vgu1","vgu100","vgu200","vgu300","vgu400","vgu500","vgu600","vgu700","vgu800","vgu900","vgu1000"],
     "ProcedureCall": "Query5Opt",
     "TestCases": ["lid1,Lecturer"],

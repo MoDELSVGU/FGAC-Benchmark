@@ -1,0 +1,4 @@
+[submodule "solutions/SQLSI"]
+	path = solutions/SQLSI
+	url = https://github.com/MoDELSVGU/SQLSI.git
+	branch = sosym21
