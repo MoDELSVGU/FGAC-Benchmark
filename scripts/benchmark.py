@@ -35,7 +35,7 @@ def build(conf, skip_tests=False):
             subprocess.check_call(config.get('build', 'default'), shell=True)
 
 
-def benchmark(conf):
+def benchmark(conf, dbuser, dbpwd):
     """
     Runs measurements
     """
@@ -46,6 +46,8 @@ def benchmark(conf):
     shutil.copy(header, result_file)
     os.environ['MODE'] = conf.Mode
     os.environ['RUNS'] = str(conf.Runs)
+    os.environ['DBUSER'] = dbuser
+    os.environ['DBPSW'] = dbpwd
     for tool in conf.Tools:
         config = ConfigParser.ConfigParser()
         config.read(os.path.join(BASE_DIRECTORY, "solutions", tool, "solution.ini"))
@@ -146,6 +148,14 @@ if __name__ == "__main__":
                         action='store', 
                         dest='testcase', 
                         help='The testcase filename.')
+    parser.add_argument('-u', '--database-user', 
+                        action='store', 
+                        dest='username', 
+                        help='The database username.')
+    parser.add_argument('-p', '--database-pwd', 
+                        action='store', 
+                        dest='password', 
+                        help='The database password.')
     args = parser.parse_args()
     FILE_NAME = args.testcase
 
@@ -162,8 +172,8 @@ if __name__ == "__main__":
     if args.build or args.test or no_args:
         build(config, args.skip_tests and not args.test)
     if args.measure or no_args:
-        benchmark(config)
+        benchmark(config, args.username, args.password)
     if args.visualize or no_args:
         visualize()
-    if args.check or no_args:
-        check_results()
+    # if args.check or no_args:
+    #     check_results()
