@@ -1,0 +1,7 @@
+{
+    "Name": "Sameple Configuration",
+    "StringField": "somefield",
+    "NumberField": 2,
+    "ArrayField": ["1", "2", "3"]
+}
+
