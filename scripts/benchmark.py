@@ -67,9 +67,12 @@ def benchmark(conf, dbuser, dbpwd):
             if tool == 'SQLExecutor':
                 query = conf.Query
                 os.environ['QUERY'] = query
+                os.environ['CALLER'] = conf.Caller
             if tool == 'ApplicationLayerExecutor':
                 task = conf.Task
                 os.environ['TASK'] = str(task)
+                os.environ['CALLER'] = conf.Caller
+                os.environ['ROLE'] = conf.Role
             try:
                 for r in range(0, conf.Runs):
                     os.environ['RUNINDEX'] = str(r)
