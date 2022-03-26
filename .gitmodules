@@ -1,4 +1,3 @@
-[submodule "solutions/SQLSI"]
-	path = solutions/SQLSI
-	url = https://github.com/MoDELSVGU/SQLSI.git
-	branch = sosym21
+[submodule "solutions/SQLSIBenchmarkExecutor"]
+	path = solutions/SQLSIBenchmarkExecutor
+	url = https://github.com/MoDELSVGU/SQLSIBenchmarkExecutor.git
