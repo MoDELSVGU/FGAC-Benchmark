@@ -44,7 +44,6 @@ def benchmark(conf, dbuser, dbpwd):
     if os.path.exists(result_file):
         os.remove(result_file)
     shutil.copy(header, result_file)
-    os.environ['MODE'] = conf.Mode
     os.environ['RUNS'] = str(conf.Runs)
     os.environ['DBUSER'] = dbuser
     os.environ['DBPSW'] = dbpwd
@@ -55,38 +54,48 @@ def benchmark(conf, dbuser, dbpwd):
         os.environ['TOOL'] = tool
         for iScenario, scenario in enumerate(conf.Scenario):
             os.environ['SCENARIO'] = scenario
-            procedureCall = conf.ProcedureCall
-            os.environ['PROCEDURECALL'] = procedureCall
+            if tool == 'SQLSIBenchmarkExecutor':
+                procedureCall = conf.ProcedureCall
+                os.environ['PROCEDURECALL'] = procedureCall
+                user, role = conf.TestCases[0].split(',',1);
+                if user == 'lid{0}':
+                    user = user.format(int(scenario[3:]))
+                    os.environ['USER'] = user
+                else:
+                    os.environ['USER'] = user
+                os.environ['ROLE'] = role
+            if tool == 'SQLExecutor':
+                query = conf.Query
+                os.environ['QUERY'] = query
+            if tool == 'ApplicationLayerExecutor':
+                task = conf.Task
+                os.environ['TASK'] = str(task)
             try:
-                for iTestCase, testCase in enumerate(conf.TestCases):
-                    user, role = testCase.split(',',1);
-                    if user == 'lid{0}':
-                        user = user.format(int(scenario[3:]))
-                        os.environ['USER'] = user
-                    else:
-                        os.environ['USER'] = user
-                    os.environ['ROLE'] = role
-                    for r in range(0, conf.Runs):
-                        os.environ['RUNINDEX'] = str(r)
+                for r in range(0, conf.Runs):
+                    os.environ['RUNINDEX'] = str(r)
+                    if tool == 'SQLSIBenchmarkExecutor':
                         print("Running benchmark: tool = {0}, runIndex = {1}, scenario = {2}, procedure = {3}, user = {4}, role = {5}".format(tool, str(r), scenario, procedureCall, user, role))
-                        
-                        # instead of subprocess.check_output()
-                        # to enforce timeout before Python 3.7.5
-                        # and kill sub-processes to avoid interference
-                        # https://stackoverflow.com/a/36955420
-                        with subprocess.Popen(config.get('run', 'cmd'), shell=True, stdout=subprocess.PIPE,
-                                            start_new_session=True) as process:
-                            try:
-                                stdout, stderr = process.communicate(timeout=conf.Timeout)
-                                return_code = process.poll()
-                                if return_code:
-                                    raise subprocess.CalledProcessError(return_code, process.args,
-                                                                        output=stdout, stderr=stderr)
-                            except subprocess.TimeoutExpired:
-                                os.killpg(process.pid, signal.SIGINT)  # send signal to the process group
-                                raise
-                        with open(result_file, "ab") as file:
-                            file.write(stdout)
+                    if tool == 'SQLExecutor':
+                        print("Running benchmark: tool = {0}, runIndex = {1}, scenario = {2}, query = {3}".format(tool, str(r), scenario, query))
+                    if tool == 'ApplicationLayerExecutor':
+                        print("Running benchmark: tool = {0}, runIndex = {1}, scenario = {2}, task = {3}".format(tool, str(r), scenario, str(task)))
+                    # instead of subprocess.check_output()
+                    # to enforce timeout before Python 3.7.5
+                    # and kill sub-processes to avoid interference
+                    # https://stackoverflow.com/a/36955420
+                    with subprocess.Popen(config.get('run', 'cmd'), shell=True, stdout=subprocess.PIPE,
+                                        start_new_session=True) as process:
+                        try:
+                            stdout, stderr = process.communicate(timeout=conf.Timeout)
+                            return_code = process.poll()
+                            if return_code:
+                                raise subprocess.CalledProcessError(return_code, process.args,
+                                                                    output=stdout, stderr=stderr)
+                        except subprocess.TimeoutExpired:
+                            os.killpg(process.pid, signal.SIGINT)  # send signal to the process group
+                            raise
+                    with open(result_file, "ab") as file:
+                        file.write(stdout)
             except subprocess.TimeoutExpired as e:
                 print("Program reached the timeout set ({0} seconds). The command we executed was '{1}'".format(e.timeout, e.cmd))
 

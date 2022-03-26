@@ -17,9 +17,9 @@ if [ "$CLEAN_FIRST" = true ] ; then
         echo "[vgu$i]: Init database schema"
         mysql -u$SQLU -p$SQLP < ./vgu$i.sql
         echo "[vgu$i]: Init database scenario"
-        mysql -u$SQLU -p$SQLP vgu$i --local-infile --execute "LOAD DATA LOCAL INFILE 'lecturer$i' INTO TABLE Lecturer FIELDS TERMINATED BY ',' LINES STARTING BY '#' TERMINATED BY '\r\n' ("lecturer_id", "name", "age", "email"); SHOW WARNINGS";
-        mysql -u$SQLU -p$SQLP vgu$i --local-infile --execute "LOAD DATA LOCAL INFILE 'student$i' INTO TABLE Student FIELDS TERMINATED BY ',' LINES STARTING BY '#' TERMINATED BY '\r\n' ("student_id", "name", "age", "email"); SHOW WARNINGS";
-        mysql -u$SQLU -p$SQLP vgu$i --local-infile --execute "LOAD DATA LOCAL INFILE 'enrollment$i' INTO TABLE Enrollment FIELDS TERMINATED BY ',' LINES STARTING BY '#' TERMINATED BY '\r\n' ("students", "lecturers"); SHOW WARNINGS";
+        mysql -u$SQLU -p$SQLP vgu$i --local-infile --execute "LOAD DATA LOCAL INFILE 'lecturer$i' INTO TABLE Lecturer FIELDS TERMINATED BY ',' LINES STARTING BY '#' TERMINATED BY '\n' ("lecturer_id", "name", "age", "email"); SHOW WARNINGS";
+        mysql -u$SQLU -p$SQLP vgu$i --local-infile --execute "LOAD DATA LOCAL INFILE 'student$i' INTO TABLE Student FIELDS TERMINATED BY ',' LINES STARTING BY '#' TERMINATED BY '\n' ("student_id", "name", "age", "email"); SHOW WARNINGS";
+        mysql -u$SQLU -p$SQLP vgu$i --local-infile --execute "LOAD DATA LOCAL INFILE 'enrollment$i' INTO TABLE Enrollment FIELDS TERMINATED BY ',' LINES STARTING BY '#' TERMINATED BY '\n' ("students", "lecturers"); SHOW WARNINGS";
     done
     cd ..
 fi
@@ -27,7 +27,7 @@ fi
 
 
 echo "Running benchmark..."
-for EXM in "Query4" "OptQuery4" "Query5" "OptQuery5" "Query6" "OptQuery6"
+for EXM in "Query4" "AppLayer4" "SecQuery4" "OptSecQuery4" "SecQuery5" "OptSecQuery5" "Query5" "AppLayer5" "SecQuery6" "OptSecQuery6" "Query6" "AppLayer6"
 do
     echo "Setting up Example of $EXM"
     cd queries

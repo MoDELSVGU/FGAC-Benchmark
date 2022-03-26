@@ -1,9 +1,9 @@
 {
     "Runs": 10,
-    "Tools": ["SQLExecutor"],
+    "Tools": ["SQLSIBenchmarkExecutor"],
     "Scenario": ["vgu100","vgu200","vgu300","vgu400","vgu500","vgu600","vgu700","vgu800","vgu900","vgu1000"],
-    "Query": "SELECT COUNT(*) FROM Enrollment",
-    "Caller": "lid1",
+    "ProcedureCall": "Query5Opt",
+    "TestCases": ["lid1,Lecturer"],
     "Timeout": 10000
 }
 

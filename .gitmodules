@@ -1,3 +1,9 @@
 [submodule "solutions/SQLSIBenchmarkExecutor"]
 	path = solutions/SQLSIBenchmarkExecutor
 	url = https://github.com/MoDELSVGU/SQLSIBenchmarkExecutor.git
+[submodule "solutions/SQLExecutor"]
+	path = solutions/SQLExecutor
+	url = https://github.com/MoDELSVGU/SQLExecutor.git
+[submodule "solutions/ApplicationLayerExecutor"]
+	path = solutions/ApplicationLayerExecutor
+	url = https://github.com/MoDELSVGU/ApplicationLayerExecutor.git

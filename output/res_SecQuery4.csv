@@ -1,0 +1,5 @@
+Tool;Scenario;ProcedureName;RunIndex;MetricName;MetricValue
+SQLSIBenchmarkExecutor;Query4;0;ExecutionTimeSecs;0.0046222
+SQLSIBenchmarkExecutor;Query4;1;ExecutionTimeSecs;0.0038341
+SQLSIBenchmarkExecutor;Query4;2;ExecutionTimeSecs;0.0036273
+SQLSIBenchmarkExecutor;Query4;3;ExecutionTimeSecs;0.0038587
