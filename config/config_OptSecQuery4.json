@@ -3,7 +3,8 @@
     "Tools": ["SQLSIBenchmarkExecutor"],
     "Scenario": ["vgu100","vgu200","vgu300","vgu400","vgu500","vgu600","vgu700","vgu800","vgu900","vgu1000"],
     "ProcedureCall": "Query4Opt",
-    "TestCases": ["lid1,Lecturer"],
+    "Caller": "lid1",
+    "Role": "Lecturer",
     "Timeout": 10000
 }
 

@@ -52,36 +52,28 @@ def benchmark(conf, dbuser, dbpwd):
         config.read(os.path.join(BASE_DIRECTORY, "solutions", tool, "solution.ini"))
         set_working_directory("solutions", tool)
         os.environ['TOOL'] = tool
+        os.environ['CALLER'] = conf.Caller
+        os.environ['ROLE'] = conf.Role
         for iScenario, scenario in enumerate(conf.Scenario):
             os.environ['SCENARIO'] = scenario
             if tool == 'SQLSIBenchmarkExecutor':
                 procedureCall = conf.ProcedureCall
                 os.environ['PROCEDURECALL'] = procedureCall
-                user, role = conf.TestCases[0].split(',',1);
-                if user == 'lid{0}':
-                    user = user.format(int(scenario[3:]))
-                    os.environ['USER'] = user
-                else:
-                    os.environ['USER'] = user
-                os.environ['ROLE'] = role
             if tool == 'SQLExecutor':
                 query = conf.Query
                 os.environ['QUERY'] = query
-                os.environ['CALLER'] = conf.Caller
             if tool == 'ApplicationLayerExecutor':
                 task = conf.Task
                 os.environ['TASK'] = str(task)
-                os.environ['CALLER'] = conf.Caller
-                os.environ['ROLE'] = conf.Role
             try:
                 for r in range(0, conf.Runs):
                     os.environ['RUNINDEX'] = str(r)
                     if tool == 'SQLSIBenchmarkExecutor':
-                        print("Running benchmark: tool = {0}, runIndex = {1}, scenario = {2}, procedure = {3}, user = {4}, role = {5}".format(tool, str(r), scenario, procedureCall, user, role))
+                        print("Running benchmark: tool = {0}, runIndex = {1}, scenario = {2}, procedure = {3}, user = {4}, role = {5}".format(tool, str(r), scenario, procedureCall, caller, role))
                     if tool == 'SQLExecutor':
-                        print("Running benchmark: tool = {0}, runIndex = {1}, scenario = {2}, query = {3}".format(tool, str(r), scenario, query))
+                        print("Running benchmark: tool = {0}, runIndex = {1}, scenario = {2}, query = {3}, user = {4}, role = {5}".format(tool, str(r), scenario, query, caller, role))
                     if tool == 'ApplicationLayerExecutor':
-                        print("Running benchmark: tool = {0}, runIndex = {1}, scenario = {2}, task = {3}".format(tool, str(r), scenario, str(task)))
+                        print("Running benchmark: tool = {0}, runIndex = {1}, scenario = {2}, task = {3}, user = {4}, role = {5}".format(tool, str(r), scenario, str(task), caller, role))
                     # instead of subprocess.check_output()
                     # to enforce timeout before Python 3.7.5
                     # and kill sub-processes to avoid interference
