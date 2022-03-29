@@ -52,8 +52,10 @@ def benchmark(conf, dbuser, dbpwd):
         config.read(os.path.join(BASE_DIRECTORY, "solutions", tool, "solution.ini"))
         set_working_directory("solutions", tool)
         os.environ['TOOL'] = tool
-        os.environ['CALLER'] = conf.Caller
-        os.environ['ROLE'] = conf.Role
+        caller = conf.Caller 
+        os.environ['CALLER'] = caller
+        role = conf.Role
+        os.environ['ROLE'] = role
         for iScenario, scenario in enumerate(conf.Scenario):
             os.environ['SCENARIO'] = scenario
             if tool == 'SQLSIBenchmarkExecutor':
@@ -91,6 +93,20 @@ def benchmark(conf, dbuser, dbpwd):
                             raise
                     with open(result_file, "ab") as file:
                         file.write(stdout)
+                    
+                    # args = ['mysql', '-u', dbuser, '-p'+dbpwd, '--execute', 'RESET QUERY CACHE;']
+                    # with subprocess.Popen(args, shell=True, stdout=subprocess.PIPE,
+                    #                     start_new_session=True) as fprocess:
+                    #     try:
+                    #         stdout, stderr = fprocess.communicate(timeout=conf.Timeout)
+                    #         return_code = process.poll()
+                    #         if return_code:
+                    #             raise subprocess.CalledProcessError(return_code, process.args,
+                    #                                                 output=stdout, stderr=stderr)
+                    #     except subprocess.TimeoutExpired:
+                    #         os.killpg(process.pid, signal.SIGINT)  # send signal to the process group
+                    #         raise
+
             except subprocess.TimeoutExpired as e:
                 print("Program reached the timeout set ({0} seconds). The command we executed was '{1}'".format(e.timeout, e.cmd))
 

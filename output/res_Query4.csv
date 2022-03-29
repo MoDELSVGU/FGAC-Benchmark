@@ -1,6 +1,0 @@
-Tool;Scenario;ProcedureName;RunIndex;MetricName;MetricValue
-SQLExecutor;SELECT COUNT(*) FROM Student WHERE age > 18;0;ExecutionTimeSecs;0.015344
-SQLExecutor;SELECT COUNT(*) FROM Student WHERE age > 18;1;ExecutionTimeSecs;0.0146708
-SQLExecutor;SELECT COUNT(*) FROM Student WHERE age > 18;2;ExecutionTimeSecs;0.0156765
-SQLExecutor;SELECT COUNT(*) FROM Student WHERE age > 18;3;ExecutionTimeSecs;0.0147333
-SQLExecutor;SELECT COUNT(*) FROM Student WHERE age > 18;4;ExecutionTimeSecs;0.0160247

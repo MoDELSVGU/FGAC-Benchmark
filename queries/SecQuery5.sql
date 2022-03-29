@@ -1,4 +1,17 @@
 -- Query5_SecVGU2.sql
+DROP FUNCTION IF EXISTS throw_error;
+/* FUNC: throw_error */
+DELIMITER //
+CREATE FUNCTION throw_error()
+RETURNS INT DETERMINISTIC
+BEGIN
+DECLARE result INT DEFAULT 0;
+SIGNAL SQLSTATE '45000'
+SET MESSAGE_TEXT = 'Unauthorized access';
+RETURN (0);
+END //
+DELIMITER ;
+
 DROP FUNCTION IF EXISTS auth_READ_Enrollment;
 /* FUNC: auth_READ_Enrollment */
 DELIMITER //
