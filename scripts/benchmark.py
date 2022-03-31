@@ -106,7 +106,7 @@ def benchmark(conf, dbuser, dbpwd):
                     #     except subprocess.TimeoutExpired:
                     #         os.killpg(process.pid, signal.SIGINT)  # send signal to the process group
                     #         raise
-
+                    os.system('sudo ./restartmysql.sh')
             except subprocess.TimeoutExpired as e:
                 print("Program reached the timeout set ({0} seconds). The command we executed was '{1}'".format(e.timeout, e.cmd))
 
