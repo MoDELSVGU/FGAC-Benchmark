@@ -4,9 +4,9 @@ import pandas as pd
 import matplotlib.pyplot as plt 
 
 FILE_NAMES = [
-    "Query4full", 
-    "Query5full", 
-    "Query6full"
+    "graph1", 
+    "graph1_Sec#1", 
+    "graph1_Sec#2"
 ]
 
 for file_name in FILE_NAMES:
@@ -17,7 +17,7 @@ for file_name in FILE_NAMES:
 
     xs = rs['Scenario'].drop_duplicates().to_numpy() # Setting the x-axis
     ys = rs['RunName'].drop_duplicates().to_numpy() # Setting the line themes
-    markers = ['o','p','s','*'] # Markers placeholders
+    markers = ['o','p','s','*', '.'] # Markers placeholders
 
     fig = plt.figure() # Creating figures
     ax = plt.subplot(111) # Adding first subplot (in case I have more, then 2x2 or something)
@@ -41,4 +41,4 @@ for file_name in FILE_NAMES:
 
     plt.xticks(xs) # Setting x-axis to display fully from 100 to 1000
 
-    plt.savefig("../graph_" + file_name + ".pdf") # Save the plot under this name
+    plt.savefig("../diagrams/graph_" + file_name + ".pdf") # Save the plot under this name

@@ -40,10 +40,9 @@ CREATE FUNCTION auth_READ_Enrollment_Lecturer(
 ) RETURNS INT DETERMINISTIC
 BEGIN
   DECLARE result INT DEFAULT 0;
-  SELECT res INTO result FROM 
-  (SELECT ((klecturers = kcaller) OR (EXISTS (SELECT 1 FROM Enrollment 
-      WHERE lecturers = kcaller AND kstudents = students)
-    )) as res
+  SELECT res INTO result 
+  FROM (SELECT ((SELECT MAX(age) FROM Lecturer)
+= (SELECT age FROM Lecturer WHERE Lecturer_id = kcaller)) as res
   ) AS TEMP;
   RETURN (result);
 END //
@@ -72,8 +71,8 @@ BEGIN
   );
 
 IF (role = 'Lecturer'
-    AND ((SELECT COUNT(*) FROM Student)
-            = (SELECT COUNT(*) FROM Enrollment WHERE lecturers = caller)))
+    AND ((SELECT MAX(age) FROM Lecturer)
+    = (SELECT age FROM Lecturer WHERE Lecturer_id = caller)))
 THEN
   DROP TEMPORARY TABLE IF EXISTS TEMP2;
   CREATE TEMPORARY TABLE TEMP2 AS (

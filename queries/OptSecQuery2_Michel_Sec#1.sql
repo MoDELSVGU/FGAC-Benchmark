@@ -1,4 +1,4 @@
--- Opt_Query6_SecVGU2.sql
+-- Opt_Query5_SecVGU2.sql
 DROP FUNCTION IF EXISTS throw_error;
 /* FUNC: throw_error */
 DELIMITER //
@@ -9,42 +9,6 @@ DECLARE result INT DEFAULT 0;
 SIGNAL SQLSTATE '45000'
 SET MESSAGE_TEXT = 'Unauthorized access';
 RETURN (0);
-END //
-DELIMITER ;
-
-DROP FUNCTION IF EXISTS auth_READ_Student_age;
-/* FUNC: auth_READ_Student_age */
-DELIMITER //
-CREATE FUNCTION auth_READ_Student_age(
-  kcaller varchar(100), krole varchar(100), kself varchar(100)
-) RETURNS INT DETERMINISTIC
-BEGIN
-  DECLARE result INT DEFAULT 0;
-  IF (krole = 'Lecturer')
-    THEN IF (auth_READ_Student_age_Lecturer(kself, kcaller))
-      THEN RETURN (1);
-      ELSE RETURN (0);
-    END IF;
-  ELSE RETURN 0;
-  END IF;
-END //
-DELIMITER ;
-
-DROP FUNCTION IF EXISTS auth_READ_Student_age_Lecturer;
-/* FUNC: auth_READ_Student_age_Lecturer */
-DELIMITER //
-CREATE FUNCTION auth_READ_Student_age_Lecturer(
-  kself varchar(100), kcaller varchar(100)
-) RETURNS INT DETERMINISTIC
-BEGIN
-  DECLARE result INT DEFAULT 0;
-  SELECT res INTO result 
-  FROM (SELECT (EXISTS (
-    SELECT 1 FROM Enrollment 
-    WHERE lecturers = kcaller AND kself = students)
-    )as res
-  ) AS TEMP;
-  RETURN (result);
 END //
 DELIMITER ;
 
@@ -76,18 +40,17 @@ CREATE FUNCTION auth_READ_Enrollment_Lecturer(
 ) RETURNS INT DETERMINISTIC
 BEGIN
   DECLARE result INT DEFAULT 0;
-  SELECT res INTO result FROM 
-  (SELECT ((klecturers = kcaller) OR (EXISTS (SELECT 1 FROM Enrollment 
-      WHERE lecturers = kcaller AND kstudents = students)
-    )) as res
+  SELECT res INTO result 
+  FROM (SELECT ((SELECT MAX(age) FROM Lecturer)
+= (SELECT age FROM Lecturer WHERE Lecturer_id = kcaller)) as res
   ) AS TEMP;
   RETURN (result);
 END //
 DELIMITER ;
 
-DROP PROCEDURE IF EXISTS Query6Opt;
+DROP PROCEDURE IF EXISTS Query5Opt;
 DELIMITER //
-CREATE PROCEDURE Query6Opt
+CREATE PROCEDURE Query5Opt
   (in caller varchar(250), in role varchar(250))
 BEGIN
 DECLARE _rollback int DEFAULT 0;
@@ -103,12 +66,13 @@ BEGIN
 
   DROP TEMPORARY TABLE IF EXISTS TEMP1;
   CREATE TEMPORARY TABLE TEMP1 AS (
-    SELECT Student_id AS students, Lecturer_id AS lecturers
-    FROM Student, Lecturer
-    WHERE Lecturer_id = caller
+    SELECT Lecturer_id AS lecturers, Student_id AS students 
+    FROM Lecturer, Student
   );
 
-IF (role = 'Lecturer')
+IF (role = 'Lecturer'
+    AND ((SELECT MAX(age) FROM Lecturer)
+    = (SELECT age FROM Lecturer WHERE Lecturer_id = caller)))
 THEN
   DROP TEMPORARY TABLE IF EXISTS TEMP2;
   CREATE TEMPORARY TABLE TEMP2 AS (
@@ -125,28 +89,13 @@ ELSE
   );
 END IF;
 
-  DROP TEMPORARY TABLE IF EXISTS TEMP3;  
+  DROP TEMPORARY TABLE IF EXISTS TEMP3;
   CREATE TEMPORARY TABLE TEMP3 AS (
-    SELECT * FROM Student JOIN TEMP2 
-    ON Student_id = students
+    SELECT students FROM Enrollment
   );
 
-IF (role = 'Lecturer')
-THEN
-  DROP TEMPORARY TABLE IF EXISTS TEMP4;
-  CREATE TEMPORARY TABLE TEMP4 AS (
-    SELECT age
-    FROM TEMP3
-  );
-ELSE
-  CREATE TEMPORARY TABLE TEMP4 AS (
-    SELECT CASE auth_READ_Student_age(caller, role,
-      Student_id) WHEN 1 THEN age ELSE throw_error() END as age 
-    FROM TEMP3
-  );
-END IF;
   IF _rollback = 0
-    THEN SELECT age from TEMP4;
+    THEN SELECT COUNT(*) from TEMP3;
   END IF;
 END //
 DELIMITER ;

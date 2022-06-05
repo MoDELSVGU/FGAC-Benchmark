@@ -35,15 +35,15 @@ def build(conf, skip_tests=False):
             subprocess.check_call(config.get('build', 'default'), shell=True)
 
 
-def benchmark(conf, dbuser, dbpwd, index):
+def benchmark(conf, dbuser, dbpwd):
     """
     Runs measurements
     """
     header = os.path.join(BASE_DIRECTORY, "output", "header.csv")
     result_file = os.path.join(BASE_DIRECTORY, "output", "res_"+ FILE_NAME + ".csv")
-    if not os.path.exists(result_file):
-    #    os.remove(result_file)
-    	shutil.copy(header, result_file)
+    if os.path.exists(result_file):
+        os.remove(result_file)
+    shutil.copy(header, result_file)
     os.environ['RUNS'] = str(conf.Runs)
     os.environ['DBUSER'] = dbuser
     os.environ['DBPSW'] = dbpwd
@@ -68,29 +68,53 @@ def benchmark(conf, dbuser, dbpwd, index):
                 task = conf.Task
                 os.environ['TASK'] = str(task)
             try:
-                os.environ['RUNINDEX'] = index
-                if tool == 'SQLSIBenchmarkExecutor':
-                    print("Running benchmark: tool = {0}, runIndex = {1}, scenario = {2}, procedure = {3}, user = {4}, role = {5}".format(tool, index, scenario, procedureCall, caller, role))
-                if tool == 'SQLExecutor':
-                    print("Running benchmark: tool = {0}, runIndex = {1}, scenario = {2}, query = {3}, user = {4}, role = {5}".format(tool, index, scenario, query, caller, role))
-                if tool == 'ApplicationLayerExecutor':
-                    print("Running benchmark: tool = {0}, runIndex = {1}, scenario = {2}, task = {3}, user = {4}, role = {5}".format(tool, index, scenario, str(task), caller, role))
-                # instead of subprocess.check_output()
-                # to enforce timeout before Python 3.7.5
-                # and kill sub-processes to avoid interference
-                # https://stackoverflow.com/a/36955420
-                with subprocess.Popen(config.get('run', 'cmd'), shell=True, stdout=subprocess.PIPE,start_new_session=True) as process:
-                    try:
-                        stdout, stderr = process.communicate(timeout=conf.Timeout)
-                        return_code = process.poll()
-                        if return_code:
-                            raise subprocess.CalledProcessError(return_code, process.args,
+                for r in range(0, conf.Runs):
+                    os.environ['RUNINDEX'] = str(r)
+                    if tool == 'SQLSIBenchmarkExecutor':
+                        print("Running benchmark: tool = {0}, runIndex = {1}, scenario = {2}, procedure = {3}, user = {4}, role = {5}".format(tool, str(r), scenario, procedureCall, caller, role))
+                    if tool == 'SQLExecutor':
+                        print("Running benchmark: tool = {0}, runIndex = {1}, scenario = {2}, query = {3}, user = {4}, role = {5}".format(tool, str(r), scenario, query, caller, role))
+                    if tool == 'ApplicationLayerExecutor':
+                        print("Running benchmark: tool = {0}, runIndex = {1}, scenario = {2}, task = {3}, user = {4}, role = {5}".format(tool, str(r), scenario, str(task), caller, role))
+                    # instead of subprocess.check_output()
+                    # to enforce timeout before Python 3.7.5
+                       # and kill sub-processes to avoid interference
+                    # https://stackoverflow.com/a/36955420
+                    with subprocess.Popen(config.get('run', 'cmd'), shell=True, stdout=subprocess.PIPE,
+                                        start_new_session=True) as process:
+                        try:
+                            stdout, stderr = process.communicate(timeout=conf.Timeout)
+                            return_code = process.poll()
+                            if return_code:
+                                raise subprocess.CalledProcessError(return_code, process.args,
                                                                     output=stdout, stderr=stderr)
-                    except subprocess.TimeoutExpired:
-                        os.killpg(process.pid, signal.SIGINT)  # send signal to the process group
-                        raise
+                        except subprocess.TimeoutExpired:
+                            os.killpg(process.pid, signal.SIGINT)  # send signal to the process group
+                            raise
                     with open(result_file, "ab") as file:
                         file.write(stdout)
+                    
+                    # args = ['mysql', '-u', dbuser, '-p'+dbpwd, '--execute', 'RESET QUERY CACHE;']
+                    # with subprocess.Popen(args, shell=True, stdout=subprocess.PIPE,
+                    #                     start_new_session=True) as fprocess:
+                    #     try:
+                    #         stdout, stderr = fprocess.communicate(timeout=conf.Timeout)
+                    #         return_code = process.poll()
+                    #         if return_code:
+                    #             raise subprocess.CalledProcessError(return_code, process.args,
+                    #                                                 output=stdout, stderr=stderr)
+                    #     except subprocess.TimeoutExpired:
+                    #         os.killpg(process.pid, signal.SIGINT)  # send signal to the process group
+                    #         raise
+                    
+                    # os.system('sudo /home/pace-up/Hoangs/AllesAufBenchmark/scripts/restartmysql.sh')
+                    with subprocess.run( ['sudo', '/home/pace-up/Hoangs/AllesAufBenchmark/scripts/restartmysql.sh' ],
+                         ) as proc:
+                        try: 
+                            stdout, _ = proc.communicate()
+                        except subprocess.TimeoutExpired:
+                            os.killpg(proc.pid, signal.SIGINT)  # send signal to the process group
+                            raise
 
             except subprocess.TimeoutExpired as e:
                 print("Program reached the timeout set ({0} seconds). The command we executed was '{1}'".format(e.timeout, e.cmd))
@@ -102,7 +126,7 @@ def clean_dir(*path):
         shutil.rmtree(dir)
     os.mkdir(dir)
 
-
+stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
 def set_working_directory(*path):
     dir = os.path.join(BASE_DIRECTORY, *path)
     os.chdir(dir)
@@ -161,10 +185,6 @@ if __name__ == "__main__":
                         action='store', 
                         dest='password', 
                         help='The database password.')
-    parser.add_argument('-i', '--current-index', 
-                        action='store', 
-                        dest='index', 
-                        help='The current index.')
     args = parser.parse_args()
     FILE_NAME = args.testcase
 
@@ -181,7 +201,7 @@ if __name__ == "__main__":
     if args.build or args.test or no_args:
         build(config, args.skip_tests and not args.test)
     if args.measure or no_args:
-        benchmark(config, args.username, args.password, args.index)
+        benchmark(config, args.username, args.password)
     if args.visualize or no_args:
         visualize()
     # if args.check or no_args:
